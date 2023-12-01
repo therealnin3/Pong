@@ -280,9 +280,6 @@ void displayText()
     // Display scores
     DrawText(TextFormat("%i", P1.score), screenWidth / 2 - 100, 50, 50, WHITE);
     DrawText(TextFormat("%i", P2.score), screenWidth / 2 + 100, 50, 50, WHITE);
-
-    // Display ball velocity
-    DrawText(TextFormat("x%0.3f", abs(ball.velocity.y)), ball.position.x - 3 * ball.radius, ball.position.y - 3 * ball.radius, 20, WHITE);
 }
 
 void restartGame()
