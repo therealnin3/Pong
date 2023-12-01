@@ -58,9 +58,6 @@ public:
         // Draw the ball
         DrawCircle(position.x, position.y, radius, color);
 
-        // Display ball velocity
-        DrawText(TextFormat("%0.1f, %0.1f", std::abs(velocity.x), std::abs(velocity.y)), position.x - 3 * radius, position.y - 3 * radius, 20, WHITE);
-
         // Check for window collision
         if (position.y + radius >= screenHeight || position.y - radius <= 0)
         {
@@ -161,7 +158,7 @@ void drawBackground(Color backgroundColor, Color lineColor);
 void checkForBallPlayerCollision();
 void restartGame();
 void checkWinningCondition();
-void displayScores();
+void displayText();
 
 int main()
 {
@@ -191,7 +188,7 @@ int main()
         checkWinningCondition();
 
         // Display scores
-        displayScores();
+        displayText();
 
         EndDrawing();
     }
@@ -278,13 +275,22 @@ void checkWinningCondition()
     }
 }
 
-void displayScores()
+void displayText()
 {
+    // Display scores
     DrawText(TextFormat("%i", P1.score), screenWidth / 2 - 100, 50, 50, WHITE);
     DrawText(TextFormat("%i", P2.score), screenWidth / 2 + 100, 50, 50, WHITE);
+
+    // Display ball velocity
+    DrawText(TextFormat("x%0.3f", abs(ball.velocity.y)), ball.position.x - 3 * ball.radius, ball.position.y - 3 * ball.radius, 20, WHITE);
 }
 
 void restartGame()
 {
-    initGameComponents();
+    P1.position = {0 + playerGapFromSide, screenHeight / 2 - playerHeight / 2};
+    P2.position = {screenWidth - playerGapFromSide - playerWidth, screenHeight / 2 - playerHeight / 2};
+    ball.position = {screenWidth / 2, screenHeight / 2};
+    float randomVelocityX = GetRandomValue(3, 6);
+    float randomVelocityY = GetRandomValue(3, 6);
+    ball.velocity = {randomVelocityX, randomVelocityY};
 }
