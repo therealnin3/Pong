@@ -2,7 +2,7 @@
 
 ## Description
 
-I created a replica of the classic pong game using C++. In my version, players can compete against against a CPU player. The game features a scoring system to keep track of each player's points.
+I created a replica of the classic pong game using C++ and RayLib. In my version, players can compete against against a CPU player. The game features a scoring system to keep track of each player's points.
 
 ## Screenshots
 
