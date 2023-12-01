@@ -10,7 +10,7 @@ Here are some screenshots of the game:
 
 ![Image 1](./screenshots/1.JPG)
 
-![Image 2](./screenshots/2.JPG)
+![Image 2](./screenshots/playing2.gif)
 
 ## How to Play
 
