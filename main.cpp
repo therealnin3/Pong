@@ -13,14 +13,64 @@ const int fps = 60;
 const int playerWidth = 25;
 const int playerHeight = 120;
 const int playerGapFromSide = 50;
-const float playerVelocity = 5;
+const float playerVelocity = 4.5;
 const Color playerColor = WHITE;
 
 // Ball settings
 const int ballRadius = 10;
 const Vector2 ballPosition = {screenWidth / 2, screenHeight / 2};
-const Vector2 ballVelocity = {5, 0};
+const Vector2 ballVelocity = {5, 5};
 const Color ballColor = WHITE;
+const int collisionMultiplier = 5;
+
+// Ball class
+class Ball
+{
+public:
+    float radius;
+    Vector2 position;
+    Vector2 velocity;
+    Color color;
+
+    Ball()
+    {
+        // Initialize properties with default values
+        radius = 0;
+        position = {0, 0};
+        velocity = {0, 0};
+        color = WHITE;
+    };
+
+    Ball(float radius, Vector2 position, Vector2 velocity, Color color)
+    {
+        this->radius = radius;
+        this->position = position;
+        this->velocity = velocity;
+        this->color = color;
+    };
+
+    void Update()
+    {
+        // Update position based on velocity
+        position.x += velocity.x;
+        position.y += velocity.y;
+
+        // Draw the ball
+        DrawCircle(position.x, position.y, radius, color);
+
+        // Display ball velocity
+        DrawText(TextFormat("%0.1f, %0.1f", std::abs(velocity.x), std::abs(velocity.y)), position.x - 3 * radius, position.y - 3 * radius, 20, WHITE);
+
+        // Check for window collision
+        if (position.y + radius >= screenHeight || position.y - radius <= 0)
+        {
+            velocity.y *= -1;
+        }
+    };
+};
+
+// Create Ball object
+Ball ball;
 
 // Human class
 class Human
@@ -29,6 +79,7 @@ public:
     int width;
     int height;
     float velocity;
+    int score = 0;
     Vector2 position;
     Color color;
 
@@ -68,69 +119,49 @@ public:
     };
 };
 
-// Ai class
-class Ai : public Human
-{
-    // No need to define a separate constructor for Ai if it's the same as Human
-};
-
-// Ball class
-class Ball
+// BOT class
+class BOT : public Human
 {
 public:
-    float radius;
-    Vector2 position;
-    Vector2 velocity;
-    Color color;
-
-    Ball()
+    // Default constructor
+    BOT() : Human()
     {
-        // Initialize properties with default values
-        radius = 0;
-        position = {0, 0};
-        velocity = {0, 0};
-        color = WHITE;
-    };
+    }
 
-    Ball(float radius, Vector2 position, Vector2 velocity, Color color)
+    // Parameterized constructor
+    BOT(int width, int height, Vector2 position, float velocity, Color color) : Human(width, height, position, velocity, color)
     {
-        this->radius = radius;
-        this->position = position;
-        this->velocity = velocity;
-        this->color = color;
-    };
+    }
 
     void Update()
     {
-        // Update position based on velocity
-        position.x += velocity.x;
-        position.y += velocity.y;
-
-        // Draw the ball
-        DrawCircle(position.x, position.y, radius, color);
-
-        // Check for window collision
-        if (position.y + radius >= screenHeight || position.y - radius <= 0)
+        // Algorithm for BOT
+        if (ball.position.y > (position.y + this->height / 2) && position.y + height < screenHeight)
         {
-            velocity.y *= -1;
+            position.y += playerVelocity;
+        }
+        else if (ball.position.y < (position.y + this->height / 2) && position.y > 0)
+        {
+            position.y -= playerVelocity;
         }
 
-        if (position.x + radius >= screenWidth || position.x - radius <= 0)
-        {
-            velocity.x *= -1;
-        }
+        // Draw the player
+        DrawRectangle(position.x, position.y, width, height, color);
     };
 };
 
-// Game components
+// Create Human object
 Human P1;
-Ai P2;
-Ball ball;
+BOT P2;
 
 // Function prototypes
 void initWindow(int screenWidth, int screenHeight, const char *title, int fps);
 void initGameComponents();
 void drawBackground(Color backgroundColor, Color lineColor);
+void checkForBallPlayerCollision();
+void restartGame();
+void checkWinningCondition();
+void displayScores();
 
 int main()
 {
@@ -150,8 +181,17 @@ int main()
 
         // Update components
         P1.Update();
-        // P2.Update();
+        P2.Update();
         ball.Update();
+
+        // Check for ball collision with players
+        checkForBallPlayerCollision();
+
+        // Check for winning condition
+        checkWinningCondition();
+
+        // Display scores
+        displayScores();
 
         EndDrawing();
     }
@@ -160,17 +200,50 @@ int main()
     return 0;
 }
 
+void checkForBallPlayerCollision()
+{
+    // Check for collision with player 1
+    if (CheckCollisionCircleRec(ball.position, ball.radius, {P1.position.x, P1.position.y, (float)P1.width, (float)P1.height}))
+    {
+        // Calculate the relative position of the collision point to the center of the paddle
+        float relativeCollisionY = ball.position.y - (P1.position.y + P1.height / 2);
+
+        // Calculate a factor based on the relative position
+        float collisionFactor = relativeCollisionY / (P1.height / 2);
+
+        // Apply the factor to the ball's velocity
+        ball.velocity.x *= -1;
+        ball.velocity.y += collisionFactor * collisionMultiplier;
+    }
+
+    // Check for collision with player 2
+    if (CheckCollisionCircleRec(ball.position, ball.radius, {P2.position.x, P2.position.y, (float)P2.width, (float)P2.height}))
+    {
+        // Calculate the relative position of the collision point to the center of the paddle
+        float relativeCollisionY = ball.position.y - (P2.position.y + P2.height / 2);
+
+        // Calculate a factor based on the relative position
+        float collisionFactor = relativeCollisionY / (P2.height / 2);
+
+        // Apply the factor to the ball's velocity
+        ball.velocity.x *= -1;
+        ball.velocity.y += collisionFactor * collisionMultiplier;
+    }
+}
+
 // Initialize all the Components of the game
 void initGameComponents()
 {
     // Init Human
     P1 = Human(playerWidth, playerHeight, {0 + playerGapFromSide, screenHeight / 2 - playerHeight / 2}, playerVelocity, playerColor);
 
-    // Init Ai
-    P2 = Human(playerWidth, playerHeight, {0 + playerGapFromSide, screenHeight / 2 - playerHeight / 2}, playerVelocity, playerColor);
+    // Init Human
+    P2 = BOT(playerWidth, playerHeight, {screenWidth - playerGapFromSide - playerWidth, screenHeight / 2 - playerHeight / 2}, playerVelocity, playerColor);
 
-    // Init ball
-    ball = Ball(ballRadius, ballPosition, ballVelocity, ballColor);
+    // Init ball with random velocity
+    float randomVelocityX = GetRandomValue(3, 6);
+    float randomVelocityY = GetRandomValue(3, 6);
+    ball = Ball(ballRadius, ballPosition, {randomVelocityX, randomVelocityY}, ballColor);
 }
 
 // Initialize the Window
@@ -186,4 +259,32 @@ void drawBackground(Color backgroundColor, Color lineColor)
 {
     ClearBackground(backgroundColor);
     DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, lineColor);
+}
+
+void checkWinningCondition()
+{
+    // Human wins
+    if (ball.position.x + ball.radius >= screenWidth)
+    {
+        P1.score++;
+        restartGame();
+    }
+
+    // BOT wins
+    if (ball.position.x - ball.radius <= 0)
+    {
+        P2.score++;
+        restartGame();
+    }
+}
+
+void displayScores()
+{
+    DrawText(TextFormat("%i", P1.score), screenWidth / 2 - 100, 50, 50, WHITE);
+    DrawText(TextFormat("%i", P2.score), screenWidth / 2 + 100, 50, 50, WHITE);
+}
+
+void restartGame()
+{
+    initGameComponents();
 }
