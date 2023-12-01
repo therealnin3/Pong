@@ -24,3 +24,9 @@ To install and run the game, follow these steps:
 2. Open the project in your preferred C++ IDE.
 3. Build and compile the code.
 4. Run the executable file to start the game.
+
+## What I've learned and will improve in the future
+
+During the development of this project, I learned about the importance of using header files to separate the declaration and implementation of classes and functions. This allows for better organization and modularity in the codebase.
+I also gained an understanding of forward declarations, which are useful when dealing with cyclic referencing between classes.
+In the future, I plan to make the codebase more extensible by creating additional classes.
