@@ -8,9 +8,9 @@ I created a replica of the classic pong game using C++. In my version, players c
 
 Here are some screenshots of the game:
 
-![Image 1](./images/1.JPG)
+![Image 1](./screenshots/1.JPG)
 
-![Image 2](./images/2.JPG)
+![Image 2](./screenshots/2.JPG)
 
 ## How to Play
 
