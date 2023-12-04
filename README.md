@@ -1,4 +1,4 @@
-# PONG 🚀 - My first c++ mini project
+# PONG 🚀 - My first C++ mini project
 
 ## Description
 
